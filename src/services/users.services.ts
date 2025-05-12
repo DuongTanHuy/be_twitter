@@ -11,6 +11,8 @@ import dotenv from 'dotenv'
 import Follower from '~/models/schemas/Follower.schema'
 import { ErrorWithStatus } from '~/models/Errors'
 import HTTP_STATUS from '~/constants/httpStatus'
+import { USER_MESSAGE } from '~/constants/message'
+import type { StringValue } from 'ms'
 
 dotenv.config()
 
@@ -24,7 +26,7 @@ class UsersService {
       },
       privateKey: process.env.JWT_SECRET_ACCESS_TOKEN,
       options: {
-        expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN
+        expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN as StringValue
       }
     })
   }
@@ -42,15 +44,20 @@ class UsersService {
       payload: {
         user_id,
         tokenType: TokenType.RefreshToken,
-        verify,
-        exp
+        verify
       },
       privateKey: process.env.JWT_SECRET_REFRESH_TOKEN,
-      ...(exp && {
-        options: {
-          expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN
-        }
-      })
+      ...(exp
+        ? {
+            options: {
+              expiresIn: exp
+            }
+          }
+        : {
+            options: {
+              expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN as StringValue
+            }
+          })
     })
   }
 
@@ -63,7 +70,7 @@ class UsersService {
       },
       privateKey: process.env.JWT_SECRET_EMAIL_VERIFY_TOKEN,
       options: {
-        expiresIn: process.env.EMAIL_VERIFY_TOKEN_EXPIRES_IN
+        expiresIn: process.env.EMAIL_VERIFY_TOKEN_EXPIRES_IN as StringValue
       }
     })
   }
@@ -77,7 +84,7 @@ class UsersService {
       },
       privateKey: process.env.JWT_SECRET_FORGOT_PASSWORD_TOKEN,
       options: {
-        expiresIn: process.env.FORGOT_PASSWORD_TOKEN_EXPIRES_IN
+        expiresIn: process.env.FORGOT_PASSWORD_TOKEN_EXPIRES_IN as StringValue
       }
     })
   }
@@ -167,7 +174,6 @@ class UsersService {
     })
     const { iat, exp } = await this.decodeRefreshToken(refresh_token)
     await databaseService.refreshTokens.insertOne(new RefreshToken({ user_id: _id, token: refresh_token, iat, exp }))
-    console.log('email_verify_token', email_verify_token)
     return {
       access_token,
       refresh_token
@@ -242,7 +248,7 @@ class UsersService {
     await databaseService.refreshTokens.deleteOne({ token: refresh_token })
 
     return {
-      message: 'Logout successfully'
+      message: USER_MESSAGE.LOGOUT_SUCCESS
     }
   }
 
@@ -312,7 +318,6 @@ class UsersService {
 
   async resendVerifyEmail(user_id: string) {
     const verifyToken = await this.signEmailVerifyToken({ user_id, verify: UserVerifyStatus.Unverified })
-    console.log('verifyToken', verifyToken)
 
     await databaseService.users.updateOne(
       { _id: new ObjectId(user_id) },
@@ -327,7 +332,7 @@ class UsersService {
     )
 
     return {
-      message: 'Resend verify email successfully'
+      message: USER_MESSAGE.RESEND_EMAIL_VERIFY_SUCCESS
     }
   }
 
@@ -336,7 +341,6 @@ class UsersService {
       user_id,
       verify
     })
-    console.log('forgotPasswordToken', forgotPasswordToken)
     await databaseService.users.updateOne(
       { _id: new ObjectId(user_id) },
       {
@@ -350,7 +354,7 @@ class UsersService {
     )
 
     return {
-      message: 'Send forgot password email successfully'
+      message: USER_MESSAGE.SEND_EMAIL_FORGOT_PASSWORD_SUCCESS
     }
   }
 
@@ -369,7 +373,7 @@ class UsersService {
     )
 
     return {
-      message: 'Reset password successfully'
+      message: USER_MESSAGE.RESET_PASSWORD_SUCCESS
     }
   }
 

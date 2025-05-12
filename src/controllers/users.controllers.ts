@@ -20,6 +20,7 @@ import { ObjectId } from 'mongodb'
 import databaseService from '~/services/database.services'
 import HTTP_STATUS from '~/constants/httpStatus'
 import { UserVerifyStatus } from '~/constants/enum'
+import { USER_MESSAGE } from '~/constants/message'
 
 dotenv.config()
 
@@ -58,8 +59,13 @@ export const oauthController = async (req: Request, res: Response) => {
 export const logoutController = async (req: Request<ParamsDictionary, any, LogoutReqBody>, res: Response) => {
   const { refresh_token } = req.body
   const message = await usersService.logout(refresh_token)
+
   // console.log(req.decoded_authorization)
   // console.log(req.decoded_refresh_token)
+
+  return res.status(HTTP_STATUS.OK).json({
+    message
+  })
 }
 
 export const refreshTokenController = async (
@@ -81,18 +87,18 @@ export const verifyEmailController = async (req: Request<ParamsDictionary, any, 
   const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) })
   if (!user) {
     return res.status(HTTP_STATUS.NOT_FOUND).json({
-      message: 'User not found'
+      message: USER_MESSAGE.USER_NOT_FOUND
     })
   }
   if (user.email_verify_token === '') {
     return res.json({
-      message: 'Email already verified'
+      message: USER_MESSAGE.EMAIL_ALREADY_VERIFIED
     })
   }
   const result = await usersService.verifyEmail(user_id)
 
   return res.json({
-    message: 'Email verified successfully',
+    message: USER_MESSAGE.EMAIL_VERIFY_SUCCESS,
     result
   })
 }
@@ -103,14 +109,13 @@ export const resendVerifyEmailController = async (req: Request, res: Response) =
   const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) })
   if (!user) {
     return res.status(HTTP_STATUS.NOT_FOUND).json({
-      message: 'User not found'
+      message: USER_MESSAGE.USER_NOT_FOUND
     })
-  } else {
-    if (user.verify === UserVerifyStatus.Verified) {
-      return res.json({
-        message: 'Email already verified'
-      })
-    }
+  }
+  if (user.verify === UserVerifyStatus.Verified) {
+    return res.json({
+      message: USER_MESSAGE.EMAIL_ALREADY_VERIFIED
+    })
   }
 
   const result = await usersService.resendVerifyEmail(user_id)
@@ -133,7 +138,7 @@ export const forgotPasswordController = async (
 
 export const verifyForgotPasswordController = async (req: Request, res: Response) => {
   return res.json({
-    message: 'Verify forgot password'
+    message: USER_MESSAGE.VERIFY_FORGOT_PASSWORD_SUCCESS
   })
 }
 
@@ -145,17 +150,17 @@ export const resetPasswordController = async (req: Request<ParamsDictionary, any
   })
   if (!user) {
     return res.status(HTTP_STATUS.NOT_FOUND).json({
-      message: 'User not found'
+      message: USER_MESSAGE.USER_NOT_FOUND
     })
   } else {
     if (user.verify !== UserVerifyStatus.Verified) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-        message: 'User not verified'
+        message: USER_MESSAGE.USER_NOT_VERIFIED
       })
     } else {
       if (user.forgot_password_token !== req.body.reset_password_token) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-          message: 'Invalid forgot password token'
+          message: USER_MESSAGE.INVALID_FORGOT_PASSWORD_TOKEN
         })
       }
     }
