@@ -421,7 +421,7 @@ export const verifiedUserValidator = (req: Request, res: Response, next: NextFun
   if (verify !== UserVerifyStatus.Verified) {
     // throw new ErrorWithStatus({ message: 'User not verified', status: HTTP_STATUS.FORBIDDEN })
     // neu la sync middleware thi dung throw error or next con neu la async middleware chi dung next
-    return next(new ErrorWithStatus({ message: 'User not verified', status: HTTP_STATUS.FORBIDDEN }))
+    return next(new ErrorWithStatus({ message: USER_MESSAGE.USER_NOT_VERIFIED, status: HTTP_STATUS.FORBIDDEN }))
   }
 
   next()
@@ -502,7 +502,7 @@ export const updateMeSchema = validation(
         //   errorMessage: "Username's length must be between 6 and 50"
         // },
         custom: {
-          options: async (value, { req }) => {
+          options: async (value) => {
             if (!REGEX_USERNAME.test(value)) {
               throw new Error('Invalid username')
             }
@@ -546,10 +546,19 @@ export const followUserSchema = validation(
               throw new Error('Followed user id is required')
             }
 
-            if (ObjectId.isValid(value)) {
+            const { user_id } = req.decoded_authorization as TokenPayload
+
+            if (!ObjectId.isValid(value)) {
               throw new ErrorWithStatus({
                 message: 'Invalid followed user id',
                 status: HTTP_STATUS.NOT_FOUND
+              })
+            }
+
+            if (value === user_id) {
+              throw new ErrorWithStatus({
+                message: 'You cannot follow yourself',
+                status: HTTP_STATUS.BAD_REQUEST
               })
             }
 
@@ -582,7 +591,7 @@ export const unFollowUserSchema = validation(
               throw new Error('Followed user id is required')
             }
 
-            if (ObjectId.isValid(value)) {
+            if (!ObjectId.isValid(value)) {
               throw new ErrorWithStatus({
                 message: 'Invalid followed user id',
                 status: HTTP_STATUS.NOT_FOUND
@@ -612,29 +621,7 @@ export const changePasswordSchema = validation(
   checkSchema(
     {
       old_password: {
-        notEmpty: {
-          errorMessage: USER_MESSAGE.PASSWORD_IS_REQUIRED
-        },
-        isString: {
-          errorMessage: USER_MESSAGE.PASSWORD_IS_STRING
-        },
-        isLength: {
-          options: {
-            max: 50,
-            min: 6
-          },
-          errorMessage: USER_MESSAGE.PASSWORD_IS_LENGTH
-        },
-        isStrongPassword: {
-          options: {
-            minLength: 6,
-            minLowercase: 1,
-            minUppercase: 1,
-            minNumbers: 1,
-            minSymbols: 1
-          },
-          errorMessage: USER_MESSAGE.PASSWORD_IS_STRONG
-        },
+        ...passwordSchema,
         custom: {
           options: async (value, { req }) => {
             const { user_id } = req.decoded_authorization as TokenPayload
@@ -650,29 +637,7 @@ export const changePasswordSchema = validation(
         }
       },
       new_password: {
-        notEmpty: {
-          errorMessage: USER_MESSAGE.PASSWORD_IS_REQUIRED
-        },
-        isString: {
-          errorMessage: USER_MESSAGE.PASSWORD_IS_STRING
-        },
-        isLength: {
-          options: {
-            max: 50,
-            min: 6
-          },
-          errorMessage: USER_MESSAGE.PASSWORD_IS_LENGTH
-        },
-        isStrongPassword: {
-          options: {
-            minLength: 6,
-            minLowercase: 1,
-            minUppercase: 1,
-            minNumbers: 1,
-            minSymbols: 1
-          },
-          errorMessage: USER_MESSAGE.PASSWORD_IS_STRONG
-        },
+        ...passwordSchema,
         custom: {
           options: async (value, { req }) => {
             if (value === req.body.old_password) {
@@ -684,29 +649,7 @@ export const changePasswordSchema = validation(
         }
       },
       confirm_password: {
-        notEmpty: {
-          errorMessage: USER_MESSAGE.PASSWORD_CONFIRM_IS_REQUIRED
-        },
-        isString: {
-          errorMessage: USER_MESSAGE.PASSWORD_CONFIRM_IS_STRING
-        },
-        isLength: {
-          options: {
-            max: 50,
-            min: 6
-          },
-          errorMessage: USER_MESSAGE.PASSWORD_CONFIRM_IS_LENGTH
-        },
-        isStrongPassword: {
-          options: {
-            minLength: 6,
-            minLowercase: 1,
-            minUppercase: 1,
-            minNumbers: 1,
-            minSymbols: 1
-          },
-          errorMessage: USER_MESSAGE.PASSWORD_CONFIRM_IS_STRONG
-        },
+        ...passwordSchema,
         custom: {
           options: (value, { req }) => {
             if (value !== req.body.new_password) {

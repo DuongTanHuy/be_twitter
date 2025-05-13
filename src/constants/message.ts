@@ -5,6 +5,7 @@ export const USER_MESSAGE = {
   NAME_IS_LENGTH: 'Please enter enough characters',
   USER_NOT_FOUND: 'User not found',
   USER_NOT_VERIFIED: 'User not verified',
+  GET_ME_SUCCESS: 'Get my profile successfully',
 
   EMAIL_IS_REQUIRED: 'Please enter your email',
   EMAIL_FORMAT: 'Please enter a valid email',

@@ -14,9 +14,7 @@ class MediasServices {
     const url_image: Media[] = await Promise.all(
       files.map(async (file) => {
         const newPath = path.resolve(UPLOAD_IMAGE_DIR, getNameFromFullName(file?.newFilename) + '.jpg')
-        await sharp(file?.filepath)
-          .jpeg()
-          .toFile(newPath)
+        await sharp(file?.filepath).jpeg().toFile(newPath)
         fs.unlinkSync(file?.filepath)
         return {
           url: `${isProduction ? 'https://twitter.com' : 'http://localhost:3001'}/static/image/${getNameFromFullName(

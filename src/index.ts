@@ -1,4 +1,4 @@
-import express, { Router } from 'express'
+import express from 'express'
 import { defaultErrorHandler } from './middlewares/errors.middlewares'
 import usersRouter from './routes/users.routes'
 import databaseService from './services/database.services'

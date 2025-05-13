@@ -6,6 +6,7 @@ import {
   ChangePasswordReqBody,
   FollowUserReqBody,
   ForgotPasswordReqBody,
+  GetProfileReqParams,
   LoginReqBody,
   LogoutReqBody,
   RefreshTokenReqBody,
@@ -179,12 +180,12 @@ export const getMeController = async (req: Request, res: Response) => {
 
   if (!user) {
     return res.status(HTTP_STATUS.NOT_FOUND).json({
-      message: 'User not found'
+      message: USER_MESSAGE.USER_NOT_FOUND
     })
   }
 
   return res.json({
-    message: 'Get me successfully',
+    message: USER_MESSAGE.GET_ME_SUCCESS,
     user
   })
 }
@@ -200,13 +201,13 @@ export const updateMeController = async (req: Request<ParamsDictionary, any, Upd
   })
 }
 
-export const getProfileController = async (req: Request<{ username: string }>, res: Response) => {
+export const getProfileController = async (req: Request<GetProfileReqParams>, res: Response) => {
   const { username } = req.params
   const user = await usersService.getProfile(username)
 
   if (!user) {
     return res.status(HTTP_STATUS.NOT_FOUND).json({
-      message: 'User not found'
+      message: USER_MESSAGE.USER_NOT_FOUND
     })
   }
 
@@ -230,6 +231,8 @@ export const unFollowUserController = async (req: Request<UnFollowUserReqBody>, 
   const { user_id: followed_user_id } = req.params
 
   const result = await usersService.unFollowUser(user_id, followed_user_id)
+
+  return res.json(result)
 }
 
 export const changePasswordController = async (

@@ -18,6 +18,10 @@ export interface VerifyEmailReqBody {
   verify_token: string
 }
 
+export interface GetProfileReqParams {
+  username: string
+}
+
 export interface LogoutReqBody {
   refresh_token: string
 }

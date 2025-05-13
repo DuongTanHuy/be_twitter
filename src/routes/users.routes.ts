@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import {
+  changePasswordController,
   followUserController,
   forgotPasswordController,
   getMeController,
@@ -98,12 +99,12 @@ usersRouter.delete(
   wrapRequestHandler(unFollowUserController)
 )
 
-usersRouter.put(
+usersRouter.patch(
   '/change-password',
   accessTokenSchema,
   verifiedUserValidator,
   changePasswordSchema,
-  wrapRequestHandler(resetPasswordController)
+  wrapRequestHandler(changePasswordController)
 )
 
 export default usersRouter
