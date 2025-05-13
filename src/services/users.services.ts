@@ -226,7 +226,8 @@ class UsersService {
       return {
         access_token,
         refresh_token,
-        new_user: false
+        new_user: false,
+        verify: user.verify
       }
     } else {
       const data = await this.register({
@@ -239,7 +240,8 @@ class UsersService {
 
       return {
         ...data,
-        new_user: true
+        new_user: true,
+        verify: UserVerifyStatus.Unverified
       }
     }
   }

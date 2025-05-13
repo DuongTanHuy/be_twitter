@@ -41,6 +41,28 @@ usersRouter.post('/register', registerValidatorSchema, wrapRequestHandler(regist
 
 usersRouter.post('/login', loginValidatorSchema, wrapRequestHandler(loginController))
 
+/*
+  URL: https://accounts.google.com/o/oauth2/v2/auth/oauthchooseaccount?redirect_uri=http%3A%2F%2Flocalhost%3A3001%2Fusers%2Foauth%2Fgoogle&client_id=628502265629-1tfr84q4ipbhf6ibrhrv4cdrc3i4j9di.apps.googleusercontent.com&access_type=offline&response_type=code&prompt=consent&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email&service=lso&o2v=2&flowName=GeneralOAuthFlow
+
+  FE: Frontend only redirect to this URL:
+    const getOauthGoogleUrl = () => {
+      const rootUrl = 'https://accounts.google.com/o/oauth2/v2/auth'
+      const options = {
+        redirect_uri: GOOGLE_REDIRECT_URI,
+        client_id: GOOGLE_CLIENT_ID,
+        access_type: 'offline',
+        response_type: 'code',
+        prompt: 'consent',
+        scope: [
+          'https://www.googleapis.com/auth/userinfo.profile',
+          'https://www.googleapis.com/auth/userinfo.email'
+        ].join(' ')
+      }
+      const qs = new URLSearchParams(options)
+      return `${rootUrl}?${qs.toString()}`
+    }
+*/
+
 usersRouter.get('/oauth/google', wrapRequestHandler(oauthController))
 
 usersRouter.post('/logout', accessTokenSchema, refreshTokenSchema, wrapRequestHandler(logoutController))
