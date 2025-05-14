@@ -7,29 +7,22 @@ import HTTP_STATUS from '~/constants/httpStatus'
 import { ErrorWithStatus } from '~/models/Errors'
 
 export const initFolder = () => {
-  if (!fs.existsSync(UPLOAD_TEMP_DIR)) {
-    fs.mkdirSync(UPLOAD_TEMP_DIR, {
-      recursive: true
-    })
-  }
-  if (!fs.existsSync(path.resolve(UPLOAD_IMAGE_DIR))) {
-    fs.mkdirSync(path.resolve(UPLOAD_IMAGE_DIR), {
-      recursive: true
-    })
-  }
-  if (!fs.existsSync(path.resolve(UPLOAD_VIDEO_DIR))) {
-    fs.mkdirSync(path.resolve(UPLOAD_VIDEO_DIR), {
-      recursive: true
-    })
-  }
+  ;[UPLOAD_TEMP_DIR, UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR].forEach((dir) => {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, {
+        recursive: true // Muc dich de tao folder nested
+      })
+    }
+  })
 }
 
 export const uploadImage = async (req: Request) => {
   const form = formidable({
+    // uploadDir: UPLOAD_IMAGE_DIR,
     uploadDir: UPLOAD_TEMP_DIR,
     maxFiles: 4,
-    maxFileSize: 300 * 1024,
-    maxTotalFileSize: 4 * 300 * 1024,
+    maxFileSize: 3000 * 1024,
+    maxTotalFileSize: 4 * 3000 * 1024,
     keepExtensions: true,
     filter: ({ name, originalFilename, mimetype }) => {
       const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg']
@@ -72,9 +65,10 @@ export const uploadImage = async (req: Request) => {
 export const uploadVideo = async (req: Request) => {
   const form = formidable({
     uploadDir: UPLOAD_VIDEO_DIR,
-    maxFiles: 1,
+    maxFiles: 4,
     maxFileSize: 50 * 1024 * 1024,
-    // keepExtensions: true,
+    maxTotalFileSize: 4 * 50 * 1024 * 1024,
+    keepExtensions: true,
     filter: ({ name, originalFilename, mimetype }) => {
       const allowedMimeTypes = ['video/mp4']
       const valid = allowedMimeTypes.includes(mimetype as string) && name === 'video'
@@ -93,7 +87,7 @@ export const uploadVideo = async (req: Request) => {
     }
   })
 
-  return new Promise<File>((resolve, reject) => {
+  return new Promise<File[]>((resolve, reject) => {
     form.parse(req, (err, fields, files) => {
       if (err) {
         return reject(err)
@@ -108,9 +102,9 @@ export const uploadVideo = async (req: Request) => {
         )
       }
 
-      const video = (files.video as File[])[0]
-      fs.renameSync(video.filepath, path.resolve(UPLOAD_VIDEO_DIR, video.newFilename + '.mp4'))
-      resolve(video)
+      const videos = files.video as File[]
+
+      resolve(videos)
     })
   })
 }

@@ -42,6 +42,8 @@ export const USER_MESSAGE = {
   INVALID_RESET_PASSWORD_TOKEN: 'Invalid reset password token',
   RESET_PASSWORD_SUCCESS: 'Reset password successfully',
 
+  UPLOAD_IMAGE_SUCCESS: 'Upload image successfully',
+
   LOGOUT_SUCCESS: 'Logout successfully',
 
   DATE_OF_BIRTH_MUST_BE_ISO8601: 'Date of birth must be ISO8601'

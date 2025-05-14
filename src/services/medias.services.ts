@@ -1,9 +1,8 @@
 import { Request } from 'express'
 import path from 'path'
 import sharp from 'sharp'
-import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from '~/constants/dir'
+import { UPLOAD_IMAGE_DIR } from '~/constants/dir'
 import { getNameFromFullName, uploadImage, uploadVideo } from '~/utils/file'
-import fs from 'fs'
 import { isProduction } from '~/constants/config'
 import { MediaType } from '~/constants/enum'
 import { Media } from '~/models/Other'
@@ -15,7 +14,7 @@ class MediasServices {
       files.map(async (file) => {
         const newPath = path.resolve(UPLOAD_IMAGE_DIR, getNameFromFullName(file?.newFilename) + '.jpg')
         await sharp(file?.filepath).jpeg().toFile(newPath)
-        fs.unlinkSync(file?.filepath)
+        // fs.unlinkSync(file.filepath)
         return {
           url: `${isProduction ? 'https://twitter.com' : 'http://localhost:3001'}/static/image/${getNameFromFullName(
             file?.newFilename
@@ -28,19 +27,14 @@ class MediasServices {
   }
 
   async handleUploadVideo(req: Request) {
-    const file = await uploadVideo(req)
+    const videos = await uploadVideo(req)
 
-    // const newPath = path.resolve(UPLOAD_VIDEO_DIR, getNameFromFullName(file?.newFilename) + '.jpg')
-
-    // await sharp(file?.filepath)
-    //   .jpeg()
-    //   .toFile(newPath)
-    // fs.unlinkSync(file?.filepath)
-
-    return {
-      url: `${isProduction ? 'https://twitter.com' : 'http://localhost:3001'}/static/video/${file?.newFilename}.mp4`,
+    const url_video: Media[] = videos.map((file) => ({
+      url: `${isProduction ? 'https://twitter.com' : 'http://localhost:3001'}/static/video/${file?.newFilename}`,
       type: MediaType.Video
-    }
+    }))
+
+    return url_video
   }
 }
 
