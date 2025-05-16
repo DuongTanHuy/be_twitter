@@ -44,20 +44,15 @@ class UsersService {
       payload: {
         user_id,
         tokenType: TokenType.RefreshToken,
-        verify
+        verify,
+        ...(exp && { exp })
       },
       privateKey: process.env.JWT_SECRET_REFRESH_TOKEN,
-      ...(exp
-        ? {
-            options: {
-              expiresIn: exp
-            }
-          }
-        : {
-            options: {
-              expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN as StringValue
-            }
-          })
+      ...(!exp && {
+        options: {
+          expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN as StringValue
+        }
+      })
     })
   }
 

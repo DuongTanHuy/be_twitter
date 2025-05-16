@@ -24,7 +24,10 @@ class Queue {
 
     const idName = (item.split('\\').pop() as string).split('.mp4')[0]
 
-    await databaseService.videoStatus.insertOne(new VideoStatus({ name: idName, status: EncodingStatus.Pending }))
+    await databaseService.videoStatus
+      .insertOne(new VideoStatus({ name: idName, status: EncodingStatus.Pending }))
+      .catch(console.log)
+
     this.processEncode()
   }
 
@@ -50,14 +53,16 @@ class Queue {
         encodeHLSWithMultipleVideoStreams(item).then(async () => {
           // fs.unlinkSync(item)
 
-          await databaseService.videoStatus.updateOne({ name: idName }, [
-            {
-              $set: {
-                status: EncodingStatus.Completed,
-                updated_at: '$$NOW'
+          await databaseService.videoStatus
+            .updateOne({ name: idName }, [
+              {
+                $set: {
+                  status: EncodingStatus.Completed,
+                  updated_at: '$$NOW'
+                }
               }
-            }
-          ])
+            ])
+            .catch(console.log)
 
           console.log('Video encoded successfully:', item)
         })

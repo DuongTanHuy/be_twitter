@@ -15,7 +15,7 @@ databaseService
   .then(() => {
     databaseService.indexUsers()
     databaseService.indexRefreshTokens()
-    // databaseService.indexVideoStatus()
+    databaseService.indexVideoStatus()
     databaseService.indexFollowers()
   })
   .catch((err) => {

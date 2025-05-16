@@ -46,18 +46,19 @@ class DatabaseService {
       this.refreshTokens.createIndex(
         { exp: 1 },
         {
-          expireAfterSeconds: 0
+          expireAfterSeconds: 0 // Automatically remove documents after expiration
         }
       )
     }
   }
 
-  // async indexVideoStatus() {
-  //   const exists = await this.indexVideoStatus.indexExists(['name_1'])
-  //   if (!exists) {
-  //     this.indexVideoStatus.createIndex({ name: 1 })
-  //   }
-  // }
+  async indexVideoStatus() {
+    const exists = await this.videoStatus.indexExists(['name_1', 'status_1'])
+    if (!exists) {
+      this.videoStatus.createIndex({ name: 1 })
+      this.videoStatus.createIndex({ status: 1 })
+    }
+  }
 
   async indexFollowers() {
     const exists = await this.followers.indexExists(['user_id_1_followed_user_id_1'])
