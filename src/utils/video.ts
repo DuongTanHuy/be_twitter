@@ -1,4 +1,3 @@
-import { exec } from 'child_process'
 import path from 'path'
 
 const MAXIMUM_BITRATE_720P = 5 * 10 ** 6 // 5Mbps
@@ -7,7 +6,7 @@ const MAXIMUM_BITRATE_1440P = 16 * 10 ** 6 // 16Mbps
 
 export const checkVideoHasAudio = async (filePath: string) => {
   const { $ } = await import('zx')
-  const slash = (await import('slash')).default
+
   const { stdout } = await $`ffprobe ${[
     '-v',
     'error',
@@ -17,14 +16,14 @@ export const checkVideoHasAudio = async (filePath: string) => {
     'stream=codec_type',
     '-of',
     'default=nw=1:nk=1',
-    slash(filePath)
+    filePath.replace(/\\/g, '/')
   ]}`
   return stdout.trim() === 'audio'
 }
 
 const getBitrate = async (filePath: string) => {
   const { $ } = await import('zx')
-  const slash = (await import('slash')).default
+  // const { default: slash } = await import('slash')
   const { stdout } = await $`ffprobe ${[
     '-v',
     'error',
@@ -34,14 +33,13 @@ const getBitrate = async (filePath: string) => {
     'stream=bit_rate',
     '-of',
     'default=nw=1:nk=1',
-    slash(filePath)
+    filePath.replace(/\\/g, '/')
   ]}`
   return Number(stdout.trim())
 }
 
 const getResolution = async (filePath: string) => {
   const { $ } = await import('zx')
-  const slash = (await import('slash')).default
 
   const { stdout } = await $`ffprobe ${[
     '-v',
@@ -52,7 +50,7 @@ const getResolution = async (filePath: string) => {
     'stream=width,height',
     '-of',
     'csv=s=x:p=0',
-    slash(filePath)
+    filePath.replace(/\\/g, '/')
   ]}`
   const resolution = stdout.trim().split('x')
   const [width, height] = resolution
@@ -94,12 +92,11 @@ const encodeMax720 = async ({
   resolution
 }: EncodeByResolution) => {
   const { $ } = await import('zx')
-  const slash = (await import('slash')).default
 
   const args = [
     '-y',
     '-i',
-    slash(inputPath),
+    inputPath.replace(/\\/g, '/'),
     '-preset',
     'veryslow',
     '-g',
@@ -140,8 +137,8 @@ const encodeMax720 = async ({
     '-hls_list_size',
     '0',
     '-hls_segment_filename',
-    slash(outputSegmentPath),
-    slash(outputPath)
+    outputSegmentPath.replace(/\\/g, '/'),
+    outputPath.replace(/\\/g, '/')
   )
 
   await $`ffmpeg ${args}`
@@ -157,9 +154,20 @@ const encodeMax1080 = async ({
   resolution
 }: EncodeByResolution) => {
   const { $ } = await import('zx')
-  const slash = (await import('slash')).default
 
-  const args = ['-y', '-i', slash(inputPath), '-preset', 'veryslow', '-g', '48', '-crf', '17', '-sc_threshold', '0']
+  const args = [
+    '-y',
+    '-i',
+    inputPath.replace(/\\/g, '/'),
+    '-preset',
+    'veryslow',
+    '-g',
+    '48',
+    '-crf',
+    '17',
+    '-sc_threshold',
+    '0'
+  ]
   if (isHasAudio) {
     args.push('-map', '0:0', '-map', '0:1', '-map', '0:0', '-map', '0:1')
   } else {
@@ -197,8 +205,8 @@ const encodeMax1080 = async ({
     '-hls_list_size',
     '0',
     '-hls_segment_filename',
-    slash(outputSegmentPath),
-    slash(outputPath)
+    outputSegmentPath.replace(/\\/g, '/'),
+    outputPath.replace(/\\/g, '/')
   )
 
   await $`ffmpeg ${args}`
@@ -214,9 +222,20 @@ const encodeMax1440 = async ({
   resolution
 }: EncodeByResolution) => {
   const { $ } = await import('zx')
-  const slash = (await import('slash')).default
 
-  const args = ['-y', '-i', slash(inputPath), '-preset', 'veryslow', '-g', '48', '-crf', '17', '-sc_threshold', '0']
+  const args = [
+    '-y',
+    '-i',
+    inputPath.replace(/\\/g, '/'),
+    '-preset',
+    'veryslow',
+    '-g',
+    '48',
+    '-crf',
+    '17',
+    '-sc_threshold',
+    '0'
+  ]
   if (isHasAudio) {
     args.push('-map', '0:0', '-map', '0:1', '-map', '0:0', '-map', '0:1', '-map', '0:0', '-map', '0:1')
   } else {
@@ -248,7 +267,7 @@ const encodeMax1440 = async ({
   if (isHasAudio) {
     args.push('v:0,a:0 v:1,a:1 v:2,a:2')
   } else {
-    args.push('v:0 v:1 v2')
+    args.push('v:0 v:1 v:2')
   }
   args.push(
     '-master_pl_name',
@@ -260,8 +279,8 @@ const encodeMax1440 = async ({
     '-hls_list_size',
     '0',
     '-hls_segment_filename',
-    slash(outputSegmentPath),
-    slash(outputPath)
+    outputSegmentPath.replace(/\\/g, '/'),
+    outputPath.replace(/\\/g, '/')
   )
 
   await $`ffmpeg ${args}`
@@ -277,9 +296,20 @@ const encodeMaxOriginal = async ({
   resolution
 }: EncodeByResolution) => {
   const { $ } = await import('zx')
-  const slash = (await import('slash')).default
 
-  const args = ['-y', '-i', slash(inputPath), '-preset', 'veryslow', '-g', '48', '-crf', '17', '-sc_threshold', '0']
+  const args = [
+    '-y',
+    '-i',
+    inputPath.replace(/\\/g, '/'),
+    '-preset',
+    'veryslow',
+    '-g',
+    '48',
+    '-crf',
+    '17',
+    '-sc_threshold',
+    '0'
+  ]
   if (isHasAudio) {
     args.push('-map', '0:0', '-map', '0:1', '-map', '0:0', '-map', '0:1', '-map', '0:0', '-map', '0:1')
   } else {
@@ -311,7 +341,7 @@ const encodeMaxOriginal = async ({
   if (isHasAudio) {
     args.push('v:0,a:0 v:1,a:1 v:2,a:2')
   } else {
-    args.push('v:0 v:1 v2')
+    args.push('v:0 v:1 v:2')
   }
   args.push(
     '-master_pl_name',
@@ -323,8 +353,8 @@ const encodeMaxOriginal = async ({
     '-hls_list_size',
     '0',
     '-hls_segment_filename',
-    slash(outputSegmentPath),
-    slash(outputPath)
+    outputSegmentPath.replace(/\\/g, '/'),
+    outputPath.replace(/\\/g, '/')
   )
 
   await $`ffmpeg ${args}`

@@ -45,7 +45,7 @@ export default class User {
     this._id = user._id
     this.name = user.name || ''
     this.email = user.email
-    this.date_of_birth = user.date_of_birth || new Date()
+    this.date_of_birth = user.date_of_birth || date
     this.password = user.password
     this.created_at = user.created_at || date
     this.updated_at = user.updated_at || date

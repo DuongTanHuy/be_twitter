@@ -33,6 +33,7 @@ export const USER_MESSAGE = {
   INVALID_ACCESS_TOKEN: 'Invalid access token',
   INVALID_REFRESH_TOKEN: 'Invalid refresh token',
   REFRESH_TOKEN_NOT_FOUND: 'Refresh token not found',
+  REFRESH_TOKEN_SUCCESS: 'Refresh token successfully',
   REFRESH_TOKEN_IS_REQUIRED: 'Refresh token is required',
   REFRESH_TOKEN_IS_STRING: 'Refresh token must be string',
   FORGOT_PASSWORD_TOKEN_IS_REQUIRED: 'Forgot password token is required',

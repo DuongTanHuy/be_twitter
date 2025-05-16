@@ -6,6 +6,7 @@ import Follower from '~/models/schemas/Follower.schema'
 import Tweet from '~/models/schemas/Tweet.schema'
 import Hashtag from '~/models/schemas/Hashtag.schema'
 import Bookmark from '~/models/schemas/Bookmark.schema'
+import VideoStatus from '~/models/schemas/VideoStatus.schema'
 
 dotenv.config()
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster1.wwfigpg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster1`
@@ -79,6 +80,10 @@ class DatabaseService {
 
   get followers(): Collection<Follower> {
     return this.db.collection(process.env.DB_FOLLOWERS_COLLECTION as string)
+  }
+
+  get videoStatus(): Collection<VideoStatus> {
+    return this.db.collection(process.env.DB_VIDEO_STATUS_COLLECTION as string)
   }
 
   get hashtags(): Collection<Hashtag> {
