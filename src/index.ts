@@ -9,6 +9,7 @@ import tweetsRouter from './routes/tweets.routes'
 import bookmarksRouter from './routes/bookmarks.routes'
 import { initFolder } from './utils/file'
 import cors from 'cors'
+import likesRouter from './routes/likes.routes'
 
 databaseService
   .connect()
@@ -34,6 +35,7 @@ app.use('/users', usersRouter)
 app.use('/medias', mediasRouter)
 app.use('/tweets', tweetsRouter)
 app.use('/bookmarks', bookmarksRouter)
+app.use('/likes', likesRouter)
 
 // Resource
 app.use('/static', staticRouter)

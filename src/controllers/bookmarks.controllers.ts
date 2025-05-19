@@ -22,5 +22,5 @@ export const unBookmarkTweetController = async (req: Request, res: Response) => 
 
   const result = await bookmarksService.unBookmarkTweet(user_id, tweet_id)
 
-  return res.json({ message: 'Tweet unbookmarked', result })
+  return res.json({ message: 'Tweet un-bookmarked', result })
 }

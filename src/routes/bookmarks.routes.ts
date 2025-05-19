@@ -15,7 +15,7 @@ bookmarksRouter.post(
 )
 
 bookmarksRouter.delete(
-  '/tweets/:tweet_id',
+  '/tweet/:tweet_id',
   accessTokenSchema,
   verifiedUserValidator,
   tweetIdSchema,

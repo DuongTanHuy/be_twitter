@@ -49,3 +49,15 @@ export const USER_MESSAGE = {
 
   DATE_OF_BIRTH_MUST_BE_ISO8601: 'Date of birth must be ISO8601'
 } as const
+
+export const TWEET_MESSAGE = {
+  INVALID_TWEET_TYPE: 'Invalid tweet type',
+  INVALID_TWEET_AUDIENCE: 'Invalid tweet audience',
+  INVALID_PARENT_TWEET_ID: 'Invalid parent tweet id',
+  PARENT_TWEET_ID_MUST_BE_NULL: 'Parent tweet id must be null',
+  CONTENT_MUST_NOT_BE_EMPTY: 'Content must not be empty',
+  CONTENT_MUST_BE_EMPTY: 'Content must be empty',
+  HASHTAG_MUST_BE_ARRAY_OF_STRING: 'Hashtag must be array of string',
+  MENTION_MUST_BE_ARRAY_OF_USER_ID: 'Mention must be array of user ids',
+  MEDIA_MUST_BE_ARRAY_OF_OBJECT_WITH_URL_AND_TYPE: 'Media must be array of object with url and type'
+} as const

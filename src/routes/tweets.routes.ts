@@ -6,6 +6,13 @@ import { wrapRequestHandler } from '~/utils/handlers'
 
 const tweetsRouter = Router()
 
+/**
+ * Description: create a tweet
+ * Path: /
+ * Method: POST
+ * Body: {...}
+ */
+
 tweetsRouter.post(
   '/',
   accessTokenSchema,

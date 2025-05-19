@@ -3,6 +3,7 @@ import { isEmpty } from 'lodash'
 import { ObjectId } from 'mongodb'
 import { MediaType, TweetAudience, TweetCategory } from '~/constants/enum'
 import HTTP_STATUS from '~/constants/httpStatus'
+import { TWEET_MESSAGE } from '~/constants/message'
 import { ErrorWithStatus } from '~/models/Errors'
 import databaseService from '~/services/database.services'
 import { numberEnumToArray } from '~/utils/commons'
@@ -14,13 +15,13 @@ export const createTweetSchema = validation(
       type: {
         isIn: {
           options: [numberEnumToArray(TweetCategory)],
-          errorMessage: 'Invalid tweet type'
+          errorMessage: TWEET_MESSAGE.INVALID_TWEET_TYPE
         }
       },
       audience: {
         isIn: {
           options: [numberEnumToArray(TweetAudience)],
-          errorMessage: 'Invalid tweet audience'
+          errorMessage: TWEET_MESSAGE.INVALID_TWEET_AUDIENCE
         }
       },
       parent_id: {
@@ -32,11 +33,11 @@ export const createTweetSchema = validation(
               [TweetCategory.Retweet, TweetCategory.Comment, TweetCategory.QuoteTweet].includes(type) &&
               !ObjectId.isValid(value)
             ) {
-              throw new Error('Invalid parent tweet id')
+              throw new Error(TWEET_MESSAGE.INVALID_PARENT_TWEET_ID)
             }
 
             if (type === TweetCategory.Tweet && value !== null) {
-              throw new Error('Parent tweet id must be null')
+              throw new Error(TWEET_MESSAGE.PARENT_TWEET_ID_MUST_BE_NULL)
             }
 
             return true
@@ -57,11 +58,11 @@ export const createTweetSchema = validation(
               isEmpty(mentions) &&
               value === ''
             ) {
-              throw new Error('Content must not be empty')
+              throw new Error(TWEET_MESSAGE.CONTENT_MUST_NOT_BE_EMPTY)
             }
 
             if (type === TweetCategory.Retweet && value !== '') {
-              throw new Error('Content must be empty')
+              throw new Error(TWEET_MESSAGE.CONTENT_MUST_BE_EMPTY)
             }
 
             return true
@@ -71,9 +72,9 @@ export const createTweetSchema = validation(
       hashtags: {
         isArray: true,
         custom: {
-          options: (value, { req }) => {
+          options: (value) => {
             if (value.some((item: any) => typeof item !== 'string')) {
-              throw new Error('Hashtags must be an array of strings')
+              throw new Error(TWEET_MESSAGE.HASHTAG_MUST_BE_ARRAY_OF_STRING)
             }
 
             return true
@@ -83,9 +84,9 @@ export const createTweetSchema = validation(
       mentions: {
         isArray: true,
         custom: {
-          options: (value, { req }) => {
+          options: (value) => {
             if (value.some((item: any) => !ObjectId.isValid(item))) {
-              throw new Error('Mentions must be an array of user ids')
+              throw new Error(TWEET_MESSAGE.MENTION_MUST_BE_ARRAY_OF_USER_ID)
             }
 
             return true
@@ -95,13 +96,13 @@ export const createTweetSchema = validation(
       medias: {
         isArray: true,
         custom: {
-          options: (value, { req }) => {
+          options: (value) => {
             if (
               value.some((item: any) => {
                 return typeof item.url !== 'string' || !numberEnumToArray(MediaType).includes(item.type)
               })
             ) {
-              throw new Error('Medias must be an array of objects with url and type')
+              throw new Error(TWEET_MESSAGE.MEDIA_MUST_BE_ARRAY_OF_OBJECT_WITH_URL_AND_TYPE)
             }
 
             return true
