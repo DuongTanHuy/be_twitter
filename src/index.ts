@@ -10,6 +10,7 @@ import bookmarksRouter from './routes/bookmarks.routes'
 import { initFolder } from './utils/file'
 import cors from 'cors'
 import likesRouter from './routes/likes.routes'
+// import '~/utils/faker'
 
 databaseService
   .connect()

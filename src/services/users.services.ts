@@ -180,6 +180,11 @@ class UsersService {
     return Boolean(user)
   }
 
+  async checkNameExists(name: string) {
+    const user = await databaseService.users.findOne({ name })
+    return Boolean(user)
+  }
+
   async checkPasswordExists(password: string) {
     const user = await databaseService.users.findOne({ password: hashPassword(password) })
     return Boolean(user)
