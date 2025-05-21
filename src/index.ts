@@ -10,6 +10,7 @@ import bookmarksRouter from './routes/bookmarks.routes'
 import { initFolder } from './utils/file'
 import cors from 'cors'
 import likesRouter from './routes/likes.routes'
+import searchRouter from './routes/search.routes'
 // import '~/utils/faker'
 
 databaseService
@@ -19,6 +20,10 @@ databaseService
     databaseService.indexRefreshTokens()
     databaseService.indexVideoStatus()
     databaseService.indexFollowers()
+    databaseService.indexBookmarks()
+    databaseService.indexLikes()
+    databaseService.indexHashtags()
+    databaseService.indexTweets()
   })
   .catch((err) => {
     console.error('Error connecting to database:', err)
@@ -37,6 +42,7 @@ app.use('/medias', mediasRouter)
 app.use('/tweets', tweetsRouter)
 app.use('/bookmarks', bookmarksRouter)
 app.use('/likes', likesRouter)
+app.use('/search', searchRouter)
 
 // Resource
 app.use('/static', staticRouter)

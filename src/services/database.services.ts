@@ -32,11 +32,13 @@ class DatabaseService {
   }
 
   async indexUsers() {
-    const exists = await this.users.indexExists(['email_1_password_1', 'email_1', 'username_1'])
+    const exists = await this.users.indexExists(['email_1_password_1', 'email_1', 'username_1', 'name_1'])
     if (!exists) {
       this.users.createIndex({ email: 1, password: 1 })
       this.users.createIndex({ email: 1 }, { unique: true })
+      this.users.createIndex({ password: 1 })
       this.users.createIndex({ username: 1 }, { unique: true })
+      this.users.createIndex({ name: 1 })
     }
   }
 
@@ -62,9 +64,44 @@ class DatabaseService {
   }
 
   async indexFollowers() {
-    const exists = await this.followers.indexExists(['user_id_1_followed_user_id_1'])
+    const exists = await this.followers.indexExists(['user_id_1_followed_user_id_1', 'user_id_1', 'twitter_circle_1'])
     if (!exists) {
       this.followers.createIndex({ user_id: 1, followed_user_id: 1 })
+      this.followers.createIndex({ user_id: 1 })
+      this.followers.createIndex({ twitter_circle: 1 })
+    }
+  }
+
+  async indexBookmarks() {
+    const exists = await this.bookmarks.indexExists(['user_id_1_tweet_id_1', 'tweet_id_1'])
+    if (!exists) {
+      this.bookmarks.createIndex({ user_id: 1, tweet_id: 1 })
+      this.bookmarks.createIndex({ tweet_id: 1 })
+    }
+  }
+
+  async indexLikes() {
+    const exists = await this.likes.indexExists(['user_id_1_tweet_id_1', 'tweet_id_1'])
+    if (!exists) {
+      this.likes.createIndex({ user_id: 1, tweet_id: 1 })
+      this.likes.createIndex({ tweet_id: 1 })
+    }
+  }
+
+  async indexHashtags() {
+    const exists = await this.hashtags.indexExists(['name_1'])
+    if (!exists) {
+      this.hashtags.createIndex({ name: 1 })
+    }
+  }
+
+  async indexTweets() {
+    const exists = await this.tweets.indexExists(['content_text', 'parent_id_1', 'user_id_1', 'audience_1'])
+    if (!exists) {
+      this.tweets.createIndex({ content: 'text' }, { default_language: 'none' })
+      this.tweets.createIndex({ parent_id: 1 })
+      this.tweets.createIndex({ user_id: 1 })
+      this.tweets.createIndex({ audience: 1 })
     }
   }
 
