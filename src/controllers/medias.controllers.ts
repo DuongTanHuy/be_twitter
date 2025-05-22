@@ -91,6 +91,8 @@ export const serveVideoStreamController = async (req: Request, res: Response, ne
 export const serveVideoHlsM3u8Controller = async (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params
 
+  // sendFileToS3(res, `videos/hls/${id}/master.m3u8`)
+
   return res.sendFile('master.m3u8', { root: path.resolve(UPLOAD_VIDEO_HLS_DIR, id) }, (error) => {
     if (error) {
       next(new ErrorWithStatus({ status: HTTP_STATUS.NOT_FOUND, message: 'Video not found' }))
@@ -100,6 +102,8 @@ export const serveVideoHlsM3u8Controller = async (req: Request, res: Response, n
 
 export const serveSegmentController = async (req: Request, res: Response, next: NextFunction) => {
   const { id, v, segment } = req.params
+
+  // sendFileToS3(res, `videos/hls/${id}/${v}/${segment}`)
 
   return res.sendFile(path.resolve(UPLOAD_VIDEO_HLS_DIR, id, v, segment), (error) => {
     if (error) {

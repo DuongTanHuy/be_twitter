@@ -13,6 +13,7 @@ import { ErrorWithStatus } from '~/models/Errors'
 import HTTP_STATUS from '~/constants/httpStatus'
 import { USER_MESSAGE } from '~/constants/message'
 import type { StringValue } from 'ms'
+import { sendVerifyRegisterEmail } from '~/utils/aws-ses'
 
 dotenv.config()
 
@@ -169,9 +170,22 @@ class UsersService {
     })
     const { iat, exp } = await this.decodeRefreshToken(refresh_token)
     await databaseService.refreshTokens.insertOne(new RefreshToken({ user_id: _id, token: refresh_token, iat, exp }))
+
+    await sendVerifyRegisterEmail({
+      toAddress: payload.email,
+      username: payload.name,
+      link: `${process.env.CLIENT_REDIRECT_URI}/verify-email?token=${email_verify_token}`
+    })
+
     return {
       access_token,
       refresh_token
+      // template: verifyEmailTemplate
+      //   .replace(/\[USERNAME\]/g, payload.name)
+      //   .replace(
+      //     /\[YOUR_VERIFICATION_LINK_HERE\]/g,
+      //     `${process.env.CLIENT_REDIRECT_URI}/verify-email?token=${email_verify_token}`
+      //   )
     }
   }
 
@@ -328,7 +342,7 @@ class UsersService {
     }
   }
 
-  async resendVerifyEmail(user_id: string) {
+  async resendVerifyEmail(user_id: string, name: string, email: string) {
     const verifyToken = await this.signEmailVerifyToken({ user_id, verify: UserVerifyStatus.Unverified })
 
     await databaseService.users.updateOne(
@@ -343,12 +357,28 @@ class UsersService {
       }
     )
 
+    await sendVerifyRegisterEmail({
+      toAddress: email,
+      username: name,
+      link: `${process.env.CLIENT_REDIRECT_URI}/verify-email?token=${verifyToken}`
+    })
+
     return {
       message: USER_MESSAGE.RESEND_EMAIL_VERIFY_SUCCESS
     }
   }
 
-  async forgotPassword({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
+  async forgotPassword({
+    user_id,
+    verify,
+    name,
+    email
+  }: {
+    user_id: string
+    verify: UserVerifyStatus
+    name: string
+    email: string
+  }) {
     const forgotPasswordToken = await this.signForgotPasswordToken({
       user_id,
       verify
@@ -364,6 +394,12 @@ class UsersService {
         }
       }
     )
+
+    await sendVerifyRegisterEmail({
+      toAddress: email,
+      username: name,
+      link: `${process.env.CLIENT_REDIRECT_URI}/verify-email?token=${forgotPasswordToken}`
+    })
 
     return {
       message: USER_MESSAGE.SEND_EMAIL_FORGOT_PASSWORD_SUCCESS

@@ -35,6 +35,10 @@ export const registerController = async (
     message: 'Register successful',
     result
   })
+  // const { template } = result
+
+  // res.setHeader('Content-Type', 'text/html')
+  // res.send(template)
 }
 
 export const loginController = async (req: Request<ParamsDictionary, any, LoginReqBody>, res: Response) => {
@@ -119,7 +123,7 @@ export const resendVerifyEmailController = async (req: Request, res: Response) =
     })
   }
 
-  const result = await usersService.resendVerifyEmail(user_id)
+  const result = await usersService.resendVerifyEmail(user_id, user.name, user.email)
 
   return res.json(result)
 }
@@ -128,10 +132,12 @@ export const forgotPasswordController = async (
   req: Request<ParamsDictionary, any, ForgotPasswordReqBody>,
   res: Response
 ) => {
-  const { _id, verify } = req.user as User
+  const { _id, verify, name, email } = req.user as User
   const result = await usersService.forgotPassword({
     user_id: (_id as ObjectId).toString(),
-    verify: verify
+    verify: verify,
+    name,
+    email
   })
 
   return res.json(result)

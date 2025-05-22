@@ -1,14 +1,15 @@
 import { Request } from 'express'
 import path from 'path'
 import sharp from 'sharp'
-import { UPLOAD_IMAGE_DIR } from '~/constants/dir'
-import { getNameFromFullName, uploadImage, uploadVideo, uploadVideoHls } from '~/utils/file'
+import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_HLS_DIR } from '~/constants/dir'
+import { getFiles, getNameFromFullName, uploadImage, uploadVideo, uploadVideoHls } from '~/utils/file'
 import { isProduction } from '~/constants/config'
 import { EncodingStatus, MediaType } from '~/constants/enum'
 import { Media } from '~/models/Other'
 import { encodeHLSWithMultipleVideoStreams } from '~/utils/video'
 import databaseService from './database.services'
 import VideoStatus from '~/models/schemas/VideoStatus.schema'
+import { uploadFileToS3 } from '~/utils/aws-s3'
 
 class Queue {
   items: string[]
@@ -38,7 +39,7 @@ class Queue {
     this.encoding = true
     const item = this.items.shift()
     if (item) {
-      const idName = (item.split('/').pop() as string).split('.mp4')[0]
+      const idName = (item.split('\\').pop() as string).split('.mp4')[0]
 
       await databaseService.videoStatus.updateOne({ name: idName }, [
         {
@@ -52,6 +53,22 @@ class Queue {
       try {
         encodeHLSWithMultipleVideoStreams(item).then(async () => {
           // fs.unlinkSync(item)
+
+          const files = getFiles(path.resolve(UPLOAD_VIDEO_HLS_DIR, idName))
+
+          await Promise.all(
+            files.map((filepath) => {
+              const pathname = filepath.split(`${path.resolve(UPLOAD_VIDEO_HLS_DIR, idName)}/`)[1]
+
+              if (pathname && !pathname.includes('.mp4')) {
+                return uploadFileToS3({
+                  fileName: `videos/hls/${idName}/` + pathname,
+                  filePath: filepath,
+                  contentType: 'video/mp4'
+                })
+              }
+            })
+          )
 
           await databaseService.videoStatus
             .updateOne({ name: idName }, [
@@ -97,16 +114,24 @@ class MediasServices {
     const files = await uploadImage(req)
     const url_image: Media[] = await Promise.all(
       files.map(async (file) => {
-        const newPath = path.resolve(UPLOAD_IMAGE_DIR, getNameFromFullName(file?.newFilename) + '.jpg')
+        const newName = getNameFromFullName(file?.newFilename)
+        const newFullFileName = newName + '.jpg'
+        const newPath = path.resolve(UPLOAD_IMAGE_DIR, newFullFileName)
+
         await sharp(file?.filepath).jpeg().toFile(newPath)
+        const s3Result = await uploadFileToS3({
+          fileName: 'images/' + newFullFileName,
+          filePath: newPath
+        })
+
+        // rimrafSync(file.filepath)
         // fs.unlinkSync(file.filepath)
+        // fs.unlinkSync(newPath)
+
         return {
-          url: `${isProduction ? 'https://twitter.com' : 'http://localhost:3001'}/static/image/${getNameFromFullName(
-            file?.newFilename
-          )}.jpg`,
-          url_resource: `${isProduction ? 'https://twitter.com' : 'http://localhost:3001'}/static/resource/image/${getNameFromFullName(
-            file?.newFilename
-          )}.jpg`,
+          url: `${isProduction ? 'https://twitter.com' : 'http://localhost:3001'}/static/image/${newFullFileName}`,
+          url_resource: `${isProduction ? 'https://twitter.com' : 'http://localhost:3001'}/static/resource/image/${newFullFileName}`,
+          s3_url: s3Result.Location,
           type: MediaType.Image
         }
       })
@@ -117,11 +142,22 @@ class MediasServices {
   async handleUploadVideo(req: Request) {
     const videos = await uploadVideo(req)
 
-    const url_video: Media[] = videos.map((file) => ({
-      url: `${isProduction ? 'https://twitter.com' : 'http://localhost:3001'}/static/video/${file?.newFilename}`,
-      url_resource: `${isProduction ? 'https://twitter.com' : 'http://localhost:3001'}/static/resource/video-stream/${file?.newFilename}`,
-      type: MediaType.Video
-    }))
+    const url_video: Media[] = await Promise.all(
+      videos.map(async (file) => {
+        const s3Result = await uploadFileToS3({
+          fileName: 'videos/streaming/' + file?.newFilename,
+          filePath: file?.filepath,
+          contentType: 'video/mp4'
+        })
+
+        return {
+          url: `${isProduction ? 'https://twitter.com' : 'http://localhost:3001'}/static/video/${file?.newFilename}`,
+          url_resource: `${isProduction ? 'https://twitter.com' : 'http://localhost:3001'}/static/resource/video-stream/${file?.newFilename}`,
+          s3_url: s3Result.Location,
+          type: MediaType.Video
+        }
+      })
+    )
 
     return url_video
   }
