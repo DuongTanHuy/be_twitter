@@ -8,6 +8,8 @@ import Hashtag from '~/models/schemas/Hashtag.schema'
 import Bookmark from '~/models/schemas/Bookmark.schema'
 import VideoStatus from '~/models/schemas/VideoStatus.schema'
 import Like from '~/models/schemas/Like.schema'
+import Conversation from '~/models/schemas/Conversation.schema'
+import Message from '~/models/schemas/Message.schema'
 
 dotenv.config()
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster1.wwfigpg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster1`
@@ -135,6 +137,14 @@ class DatabaseService {
 
   get likes(): Collection<Like> {
     return this.db.collection(process.env.DB_LIKE_COLLECTION as string)
+  }
+
+  get conversations(): Collection<Conversation> {
+    return this.db.collection(process.env.DB_CONVERSATION_COLLECTION as string)
+  }
+
+  get messages(): Collection<Message> {
+    return this.db.collection(process.env.DB_MESSAGE_COLLECTION as string)
   }
 }
 

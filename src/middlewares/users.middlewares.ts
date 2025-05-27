@@ -12,6 +12,7 @@ import { ErrorWithStatus } from '~/models/Errors'
 import { TokenPayload } from '~/models/requests/User.requests'
 import databaseService from '~/services/database.services'
 import usersService from '~/services/users.services'
+import { verifyAccessToken } from '~/utils/commons'
 import { hashPassword } from '~/utils/crypto'
 import { verifyToken } from '~/utils/jwt'
 import { validation } from '~/utils/validation'
@@ -124,26 +125,7 @@ export const accessTokenSchema = validation(
         trim: true,
         custom: {
           options: async (value: string, { req }) => {
-            const accessToken = (value ?? '').split(' ')[1]
-            if (!accessToken) {
-              throw new ErrorWithStatus({
-                message: USER_MESSAGE.INVALID_ACCESS_TOKEN,
-                status: HTTP_STATUS.UNAUTHORIZED
-              })
-            }
-            try {
-              const decoded_authorization = await verifyToken({
-                token: accessToken,
-                secretOrPublicKey: process.env.JWT_SECRET_ACCESS_TOKEN as string
-              })
-              req.decoded_authorization = decoded_authorization
-              return true
-            } catch (error: JsonWebTokenError | any) {
-              throw new ErrorWithStatus({
-                message: capitalize(error.message) || USER_MESSAGE.INVALID_ACCESS_TOKEN,
-                status: HTTP_STATUS.UNAUTHORIZED
-              })
-            }
+            return await verifyAccessToken(value, req as Request)
           }
         }
       }
