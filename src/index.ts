@@ -8,12 +8,14 @@ import staticRouter from './routes/static.routes'
 import tweetsRouter from './routes/tweets.routes'
 import bookmarksRouter from './routes/bookmarks.routes'
 import { initFolder } from './utils/file'
-import cors from 'cors'
+import cors, { CorsOptions } from 'cors'
 import likesRouter from './routes/likes.routes'
 import searchRouter from './routes/search.routes'
 import { createServer } from 'http'
 import conversationRouter from './routes/conversations.routes'
 import initSocket from './utils/socket'
+import helmet from 'helmet'
+import { rateLimit } from 'express-rate-limit'
 
 // import '~/utils/faker'
 
@@ -38,12 +40,31 @@ const POST = 3001
 const app = express()
 initFolder()
 
+// Rate Limiting Middleware
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+  standardHeaders: 'draft-8', // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
+  legacyHeaders: false // Disable the `X-RateLimit-*` headers.
+  // store: ... , // Redis, Memcached, etc. See below.
+})
+
+// Apply the rate limiting middleware to all requests.
+app.use(limiter)
+
 // Socket.io
 const httpServer = createServer(app)
 initSocket(httpServer)
 
 // Express
-app.use(cors())
+app.use(helmet())
+
+const corsOptions: CorsOptions = {
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}
+app.use(cors(corsOptions))
 app.use(express.json())
 
 app.use('/users', usersRouter)

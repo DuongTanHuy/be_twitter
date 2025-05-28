@@ -1,0 +1,95 @@
+openapi: 3.0.4
+info:
+  title: Twitter Typescript
+  description: |-
+    This is a sample Pet Store Server based on the OpenAPI 3.0 specification.  You can find out more about
+    Swagger at [https://swagger.io](https://swagger.io). In the third iteration of the pet store, we've switched to the design first approach!
+    You can now help us improve the API whether it's by making changes to the definition itself or to the code.
+    That way, with time, we can improve the API in general, and expose some of the new features in OAS3.
+
+    Some useful links:
+    - [The Pet Store repository](https://github.com/swagger-api/swagger-petstore)
+    - [The source API definition for the Pet Store](https://github.com/swagger-api/swagger-petstore/blob/master/src/main/resources/openapi.yaml)
+  termsOfService: https://swagger.io/terms/
+  contact:
+    email: apiteam@swagger.io
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.12
+externalDocs:
+  description: Find out more about Swagger
+  url: https://swagger.io
+servers:
+  - url: http://localhost:3001
+tags:
+  - name: users
+    description: Operations about user
+paths:
+  /users/login:
+    post:
+      tags:
+        - users
+      summary: Login.
+      description: This can only be done by the logged in user.
+      operationId: login
+      requestBody:
+        description: Login object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        '200':
+          description: login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginRes'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        email:
+          type: string
+          example: huyduong@yopmail.com
+        password:
+          type: string
+          example: User123456@
+      xml:
+        name: user
+    LoginRes:
+      type: object
+      properties:
+        message:
+          type: string
+          example: logged in successfully
+        result:
+          type: object
+          properties:
+            access_token:
+              type: string
+              example: 1234567890abcdefg
+            refresh_token:
+              type: string
+              example: 0987654321gfedcba
+      xml:
+        name: loginRes
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      required:
+        - code
+        - message
