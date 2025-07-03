@@ -129,8 +129,8 @@ class MediasServices {
         // fs.unlinkSync(newPath)
 
         return {
-          url: `${isProduction ? 'https://twitter.com' : 'http://localhost:3001'}/static/image/${newFullFileName}`,
-          url_resource: `${isProduction ? 'https://twitter.com' : 'http://localhost:3001'}/static/resource/image/${newFullFileName}`,
+          url: `${isProduction ? 'https://twitter-api-jt4d.onrender.com' : 'http://localhost:3001'}/static/image/${newFullFileName}`,
+          url_resource: `${isProduction ? 'https://twitter-api-jt4d.onrender.com' : 'http://localhost:3001'}/static/resource/image/${newFullFileName}`,
           s3_url: s3Result.Location,
           type: MediaType.Image
         }
@@ -151,8 +151,8 @@ class MediasServices {
         })
 
         return {
-          url: `${isProduction ? 'https://twitter.com' : 'http://localhost:3001'}/static/video/${file?.newFilename}`,
-          url_resource: `${isProduction ? 'https://twitter.com' : 'http://localhost:3001'}/static/resource/video-stream/${file?.newFilename}`,
+          url: `${isProduction ? 'https://twitter-api-jt4d.onrender.com' : 'http://localhost:3001'}/static/video/${file?.newFilename}`,
+          url_resource: `${isProduction ? 'https://twitter-api-jt4d.onrender.com' : 'http://localhost:3001'}/static/resource/video-stream/${file?.newFilename}`,
           s3_url: s3Result.Location,
           type: MediaType.Video
         }
@@ -175,8 +175,8 @@ class MediasServices {
 
         return {
           id: file?.newFilename.split('.mp4')[0],
-          url: `${isProduction ? 'https://twitter.com' : 'http://localhost:3001'}/static/video/${(file?.newFilename as string).split('.mp4')[0]}/${file?.newFilename}`,
-          url_resource: `${isProduction ? 'https://twitter.com' : 'http://localhost:3001'}/static/resource/video-hls/${(file?.newFilename as string).split('.mp4')[0]}/master`,
+          url: `${isProduction ? 'https://twitter-api-jt4d.onrender.com' : 'http://localhost:3001'}/static/video/${(file?.newFilename as string).split('.mp4')[0]}/${file?.newFilename}`,
+          url_resource: `${isProduction ? 'https://twitter-api-jt4d.onrender.com' : 'http://localhost:3001'}/static/resource/video-hls/${(file?.newFilename as string).split('.mp4')[0]}/master`,
           type: MediaType.Video
         }
       })

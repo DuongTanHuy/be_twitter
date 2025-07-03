@@ -16,6 +16,7 @@ import conversationRouter from './routes/conversations.routes'
 import initSocket from './utils/socket'
 import helmet from 'helmet'
 import { rateLimit } from 'express-rate-limit'
+import { isProduction } from '~/constants/config'
 
 // import '~/utils/faker'
 
@@ -89,6 +90,12 @@ app.use(defaultErrorHandler)
 //   console.log('Express listening on port ' + POST)
 // })
 
-httpServer.listen(POST, () => {
-  console.log('Express listening on port ' + POST)
-})
+if (isProduction) {
+  httpServer.listen(process.env.POST, () => {
+    console.log('Express listening on port ' + process.env.POST + ' in production mode')
+  })
+} else {
+  httpServer.listen(POST, () => {
+    console.log('Express listening on port ' + POST)
+  })
+}
